@@ -86,13 +86,15 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
             fprintf('Interpolating data from graph %s.\n',graphs{i})
             %interp data
             nCols = size(dataFile(i).data,2);
-            newData = NaN(nRows,nCols);
+            newData = NaN(nRows,nCols-2);
             for j=(columnStart(i)+1):nCols
-                newData(:,j) = interp1(dataFile(i).data(:,columnStart(i)),dataFile(i).data(:,j),timeVec);
+                newData(:,j-2) = interp1(dataFile(i).data(:,columnStart(i)),dataFile(i).data(:,j),timeVec);
+                if any(isnan(newData(:,j-2)))
+                    keyboard
+                end
             end
             dataStruct.data = [dataStruct.data,newData];
             
-            keyboard
         else
             fprintf('No need to interpolate data from graph %s.\n',graphs{i})
             dataStruct.data = [dataStruct.data,dataFile(i).data(:,columnStart(i)+1:end)];
@@ -104,7 +106,7 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
     [~,alphabeticalOrder] = sort(dataStruct.colheaders);
     dataStruct.colheaders = dataStruct.colheaders(alphabeticalOrder);
     dataStruct.data = dataStruct.data(:,alphabeticalOrder);
-    
+        
     if toSave
         if strcmp(projFile(end-15:end),'_Standalone.asim')
             saveFolder = projFile(1:end-16);
