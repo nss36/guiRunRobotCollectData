@@ -82,14 +82,16 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
         dataStruct.colheaders = [dataStruct.colheaders,dataFile(i).colheaders(columnStart(i)+1:end)];
         %interp data
         %if ~isequal(dataFile(i).data(:,columnStart(i)),timeVec)
-        if max(abs(timeVec - dataFile(i).data(:,columnStart(i)))) > 1e-15
+        
+        newTimeVec = dataFile(i).data(:,columnStart(i));
+        if ~isequal(size(timeVec),size(newTimeVec)) || max(abs(timeVec - newTimeVec)) > 1e-15
             fprintf('Interpolating data from graph %s.\n',graphs{i})
             %interp data
             nCols = size(dataFile(i).data,2);
             newData = NaN(nRows,nCols-2);
             for j=(columnStart(i)+1):nCols
-                newData(:,j-2) = interp1(dataFile(i).data(:,columnStart(i)),dataFile(i).data(:,j),timeVec);
-                if any(isnan(newData(:,j-2)))
+                newData(:,j-2) = interp1(newTimeVec,dataFile(i).data(:,j),timeVec);
+                if all(isnan(newData(:,j-2)))
                     keyboard
                 end
             end
