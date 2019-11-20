@@ -74,7 +74,7 @@ function [success] = fExtractPlotData(varargin)
             plot(dataStruct.time(startInd:endInd),dataStruct.data(startInd:endInd,columnIndex),'k','linewidth',1);
             grid on
             xlim(timeRange)
-            title(dataStruct.colheaders{columnIndex});
+            title(strrep(dataStruct.colheaders{columnIndex},'_',' '));
             if i == colsToPlot
                 xlabel('Time (s)')
             end

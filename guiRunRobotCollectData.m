@@ -22,7 +22,7 @@ function varargout = guiRunRobotCollectData(varargin)
 
 % Edit the above text to modify the response to help guiRunRobotCollectData
 
-% Last Modified by GUIDE v2.5 18-Mar-2018 14:46:58
+% Last Modified by GUIDE v2.5 18-Nov-2019 12:17:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -69,6 +69,7 @@ handles.asimFile = [];
 handles.asimPath = [];
 handles.toSaveData = 1;
 handles.toRunRobot = 1;
+handles.isRobot = 1;
 handles.animatlabSimulator = 'C:\AnimatLabSDK\AnimatLabPublicSource\bin\AnimatSimulator.exe';
 handles.graphs = {};
 handles.toPlotGUI = [];
@@ -287,7 +288,7 @@ if ~isempty(handles.toPlotGUI)
 end
 [status,message,dataStructure] = ...
     fRunRobotCollectData(handles.asimPath,handles.asimFile,...
-    handles.animatlabSimulator,handles.graphs,handles.toRunRobot,handles.delayTime,handles.toSaveData);
+    handles.animatlabSimulator,handles.graphs,handles.toRunRobot,handles.isRobot,handles.delayTime,handles.toSaveData);
 if status == 0 || status == -1
     %No errors, or just plotting
     handles.toPlotGUI = guiExtractPlotData(dataStructure);
@@ -325,3 +326,24 @@ function editDelayTime_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkboxIsRobot.
+function checkboxIsRobot_Callback(hObject, eventdata, handles)
+% hObject    handle to checkboxSaveData (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxSaveData
+handles.isRobot = get(hObject,'Value');
+guidata(hObject,handles);
+
+% --- Executes on button press in checkboxIsRobot.
+function checkboxIsRobot_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to checkboxSaveData (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkboxSaveData
+handles.isRobot = get(hObject,'Value');
+guidata(hObject,handles);

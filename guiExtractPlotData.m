@@ -255,7 +255,10 @@ fprintf('start: %f, end: %f.\n',handles.startTime,handles.endTime);
 nCols = length(handles.listboxToPlot.String);
 columnsToPlot = NaN(nCols,1);
 for i=1:nCols
-    columnsToPlot(i) = find(strcmp(handles.listboxToPlot.String{i},handles.dataStruct.colheaders));
+    try columnsToPlot(i) = find(strcmp(handles.listboxToPlot.String{i},handles.dataStruct.colheaders),1,'first');
+    catch
+        keyboard
+    end
 end
 timeRange = [handles.startTime,handles.endTime];
 subplotSize = [handles.numRows,handles.numColumns];
