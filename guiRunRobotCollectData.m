@@ -283,7 +283,7 @@ function pushbuttonRunRobot_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonRunRobot (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if ~isempty(handles.toPlotGUI)
+if ~isempty(handles.toPlotGUI) && isvalid(handles.toPlotGUI)
     close(handles.toPlotGUI)
 end
 [status,message,dataStructure] = ...

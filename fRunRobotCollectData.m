@@ -23,9 +23,9 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
 
     %%
 
-    if toRunRobot
-        pause(5);
-    end
+%     if toRunRobot
+%         pause(5);
+%     end
     
     nGraphs = length(graphs);
     timeCell = cell(nGraphs,1);
@@ -40,7 +40,7 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
         textFile = [projFolder,thisLoopGraph,'.txt'];
         readThisGraph = true;
 
-        try dataFile(i) = importdata(textFile);
+        try dataFile(i) = importdata(textFile); %#ok<*AGROW>
         catch
             tempGraph = strrep(thisLoopGraph,'_',' ');
             textFile = [projFolder,tempGraph,'.txt'];
@@ -51,7 +51,7 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
                 
                 readThisGraph = false;
             end
-        end        
+        end   
 
         if readThisGraph
             columnStart(i) = find(strcmp(dataFile(i).colheaders,'Time')); 
@@ -68,6 +68,8 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
         end
         j = j + 1;
     end
+    
+    delete([projFolder,'*.txt'])
     
     %Find the "one true time vector," at which we will sample all of the
     %data.
