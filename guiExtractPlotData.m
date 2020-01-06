@@ -22,7 +22,7 @@ function varargout = guiExtractPlotData(varargin)
 
 % Edit the above text to modify the response to help guiExtractPlotData
 
-% Last Modified by GUIDE v2.5 16-Mar-2018 16:20:46
+% Last Modified by GUIDE v2.5 03-Jan-2020 15:25:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -49,9 +49,10 @@ handles.figureNames = {};
 handles.numRows = 1;
 handles.numColumns = 1;
 handles.numPlots = 0;
-handles.startTime = 0;
-handles.endTime = 30;
-handles.dataStruct = dataStruct;
+handles.startTime = min(dataStruct.time);
+handles.endTime = max(dataStruct.time);
+handles.dataStruct = dataStruct; 
+handles.plotStyleFlag = 0;
 
 % --- Executes just before guiExtractPlotData is made visible.
 function guiExtractPlotData_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -69,11 +70,26 @@ handles.output = hObject;
 handles = initVariables(handles,dataStruct);
 
 if nargin == 4
-
-    handles.listboxNotToPlot.String = handles.dataStruct.colheaders;
+    set(handles.listboxNotToPlot,'String',handles.dataStruct.colheaders);
+%     handles.listboxNotToPlot.String = handles.dataStruct.colheaders;
     guidata(hObject,handles);
     
 end
+
+%Fill in appropriate start and end times
+% handles.editStartTime.String = num2str(min(handles.dataStruct.time));
+% handles.editEndTime.String = num2str(max(handles.dataStruct.time));
+set(handles.editStartTime,'String',num2str(min(handles.dataStruct.time)));
+set(handles.editEndTime,'String',num2str(max(handles.dataStruct.time)));
+
+%Set the plot style flag
+% 0 - Multiple subplots
+% 1 - Single plot (shared y axis)
+% 2 - Versus (2D or 3D "portrait" plot)
+handles.plotStyleFlag = 0;
+set(handles.radiobuttonMulti,'Value',1);
+set(handles.radiobuttonSingle,'Value',0);
+set(handles.radiobuttonVersus,'Value',0);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -262,7 +278,7 @@ for i=1:nCols
 end
 timeRange = [handles.startTime,handles.endTime];
 subplotSize = [handles.numRows,handles.numColumns];
-fExtractPlotData(handles.dataStruct,columnsToPlot,timeRange,subplotSize);
+fExtractPlotData(handles.dataStruct,columnsToPlot,timeRange,subplotSize,handles.plotStyleFlag);
 guidata(hObject,handles);
 
 
@@ -313,5 +329,102 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+
 function figure1_DeleteFcn(hObject, eventdata, handles)
 
+
+% --- Executes on button press in radiobuttonMulti.
+function radiobuttonMulti_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobuttonMulti (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobuttonMulti
+if get(hObject,'Value')
+    %turn off other radio buttons
+    set(handles.radiobuttonMulti,'Value',1);
+    set(handles.radiobuttonSingle,'Value',0);
+    set(handles.radiobuttonVersus,'Value',0);
+    
+    %set plot style flag
+    handles.plotStyleFlag = 0;
+    
+    set(handles.text4,'Visible','on')
+    set(handles.text6,'Visible','on')
+    set(handles.text8,'Visible','on')
+    set(handles.textNumRows,'Visible','on')
+    set(handles.textNumColumns,'Visible','on')
+    set(handles.pushbuttonIncreaseRows,'Visible','on')
+    set(handles.pushbuttonDecreaseRows,'Visible','on')
+    set(handles.pushbuttonIncreaseColumns,'Visible','on')
+    set(handles.pushbuttonDecreaseColumns,'Visible','on')
+else
+    %You cannot turn it off by clicking it. If the user turns it off, turn
+    %it right back on.
+    set(hObject,'Value',1);
+end
+guidata(hObject,handles);
+
+% --- Executes on button press in radiobuttonSingle.
+function radiobuttonSingle_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobuttonSingle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobuttonSingle
+if get(hObject,'Value')
+    %turn off other radio buttons
+    set(handles.radiobuttonMulti,'Value',0);
+    set(handles.radiobuttonSingle,'Value',1);
+    set(handles.radiobuttonVersus,'Value',0);
+    
+    %set plot style flag
+    handles.plotStyleFlag = 1;
+    
+    set(handles.text4,'Visible','off')
+    set(handles.text6,'Visible','off')
+    set(handles.text8,'Visible','off')
+    set(handles.textNumRows,'Visible','off')
+    set(handles.textNumColumns,'Visible','off')
+    set(handles.pushbuttonIncreaseRows,'Visible','off')
+    set(handles.pushbuttonDecreaseRows,'Visible','off')
+    set(handles.pushbuttonIncreaseColumns,'Visible','off')
+    set(handles.pushbuttonDecreaseColumns,'Visible','off')
+else
+    %You cannot turn it off by clicking it. If the user turns it off, turn
+    %it right back on.
+    set(hObject,'Value',1);
+end
+guidata(hObject,handles);
+
+% --- Executes on button press in radiobuttonVersus.
+function radiobuttonVersus_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobuttonVersus (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobuttonVersus
+if get(hObject,'Value')
+    %turn off other radio buttons
+    set(handles.radiobuttonMulti,'Value',0);
+    set(handles.radiobuttonSingle,'Value',0);
+    set(handles.radiobuttonVersus,'Value',1);
+    
+    %set plot style flag
+    handles.plotStyleFlag = 2;
+    
+    set(handles.text4,'Visible','off')
+    set(handles.text6,'Visible','off')
+    set(handles.text8,'Visible','off')
+    set(handles.textNumRows,'Visible','off')
+    set(handles.textNumColumns,'Visible','off')
+    set(handles.pushbuttonIncreaseRows,'Visible','off')
+    set(handles.pushbuttonDecreaseRows,'Visible','off')
+    set(handles.pushbuttonIncreaseColumns,'Visible','off')
+    set(handles.pushbuttonDecreaseColumns,'Visible','off')
+else
+    %You cannot turn it off by clicking it. If the user turns it off, turn
+    %it right back on.
+    set(hObject,'Value',1);
+end
+guidata(hObject,handles);

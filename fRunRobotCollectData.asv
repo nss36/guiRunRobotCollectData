@@ -21,7 +21,12 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
         fprintf('\n*** Not running a new simulation; only reading data from a previous trial.***\n')
     end
 
-    %%    
+    %%
+
+%     if toRunRobot
+%         pause(5);
+%     end
+    
     nGraphs = length(graphs);
     timeCell = cell(nGraphs,1);
     tmax = NaN(nGraphs,1);
@@ -88,20 +93,17 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
     for i=1:nGraphs
         dataStruct.colheaders = [dataStruct.colheaders,dataFile(i).colheaders(columnStart(i)+1:end)];
 
-        %Create a new time vector, which corresponds to this trial.
+        %interp data
+        %if ~isequal(dataFile(i).data(:,columnStart(i)),timeVec)
+        
         newTimeVec = dataFile(i).data(:,columnStart(i));
-        dataInds = (1:length(newTimeVec))';
         
         if length(newTimeVec) == length(unique(newTimeVec))
-            %if every element is unique, then we will save and then plot
-            %every element.
+            %if every element 
         else
-            %If the sampling frequency is too high, some values will be
-            %repeated. We must remove redundant points to aid resampling.
+            [newTimeVec,uniqueInds] = unique(newTimeVec);
             
-            [newTimeVec,dataInds] = unique(newTimeVec);
-            
-            warning('The sample frequency of chart "%s" in AnimatLab is too high. Reduce the frequency. fRunRobotCollectData will downsample the time vector to resolve this issue for this trial.',graphs{i});
+            warning('The sample frequency of chart "%s" in AnimatLab is too high. Reduce the frequency. f
         end
         
         if ~isequal(size(timeVec),size(newTimeVec)) || max(abs(timeVec - newTimeVec)) > 1e-15
@@ -111,19 +113,23 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
             newData = NaN(nRows,nCols-2);
             for j=(columnStart(i)+1):nCols
                 k = j - columnStart(i);
+                try newData(:,k) = interp1(newTimeVec,dataFile(i).data(:,j),timeVec);
+                catch
+                    keyboard
+                end
                 
-                %Resample this graph's data to match the sample rate of the
-                %other charts.
-                newData(:,k) = interp1(newTimeVec,dataFile(i).data(dataInds,j),timeVec);
-                                
+                if all(isnan(newData(:,k)))
+                    keyboard
+                end
             end
-            %Concatenate this data to the matrix.
             dataStruct.data = [dataStruct.data,newData];
             
         else
             fprintf('No need to interpolate data from graph %s.\n',graphs{i})
-            dataStruct.data = [dataStruct.data,dataFile(i).data(dataInds,columnStart(i)+1:end)];
+            dataStruct.data = [dataStruct.data,dataFile(i).data(:,columnStart(i)+1:end)];
         end
+        
+        %concat data
     end
     
     [~,alphabeticalOrder] = sort(dataStruct.colheaders);
@@ -142,6 +148,9 @@ function [status,message,dataStruct] = fRunRobotCollectData(projFolder,projFile,
         save([saveDirectory,'\',projName],'dataStruct')
         mkdir([saveDirectory,'\',saveFolder]);
         copyfile(projFolder,[saveDirectory,'\',saveFolder]);
+        
+%         fExtractPlotData(figureDirectory);
+%         guiExtractPlotData(true,figureDirectory);
     end
     
     

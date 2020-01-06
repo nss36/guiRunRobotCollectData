@@ -9,6 +9,7 @@ function [success] = fExtractPlotData(varargin)
         columnsToPlot = varargin{2};
         timeRange = varargin{3};
         subplotSize = varargin{4};
+        plotStyleFlag = varargin{5};
     end
 
     plotAnotherGraph = true;
@@ -65,18 +66,53 @@ function [success] = fExtractPlotData(varargin)
         figure;
         hold on
         
-        for i=1:numSubplots
-            subplot(rowsToPlot,colsToPlot,i)
-            columnIndex = columnsToPlot(i);
+        if plotStyleFlag == 0
+            for i=1:numSubplots
+                subplot(rowsToPlot,colsToPlot,i)
+                columnIndex = columnsToPlot(i);
 
-            hold on
-            
-            plot(dataStruct.time(startInd:endInd),dataStruct.data(startInd:endInd,columnIndex),'k','linewidth',1);
-            grid on
-            xlim(timeRange)
-            title(strrep(dataStruct.colheaders{columnIndex},'_',' '));
-            if i == colsToPlot
-                xlabel('Time (s)')
+                hold on
+
+                plot(dataStruct.time(startInd:endInd),dataStruct.data(startInd:endInd,columnIndex),'k','linewidth',1);
+                grid on
+                xlim(timeRange)
+                title(strrep(dataStruct.colheaders{columnIndex},'_',' '));
+                if i == colsToPlot
+                    xlabel('Time (s)')
+                end
+            end
+        elseif plotStyleFlag == 1
+            legCell = {};
+            for i=1:numSubplots
+                columnIndex = columnsToPlot(i);
+
+                hold on
+
+                plot(dataStruct.time(startInd:endInd),dataStruct.data(startInd:endInd,columnIndex),'linewidth',1);
+                grid on
+                xlim(timeRange)
+                legCell{i} = strrep(dataStruct.colheaders{columnIndex},'_',' '); %#ok<AGROW>
+                if i == colsToPlot
+                    xlabel('Time (s)')
+                end
+            end
+            legend(legCell)
+        elseif plotStyleFlag == 2
+            if numSubplots == 2
+                plot(dataStruct.data(startInd:endInd,columnsToPlot(1)),dataStruct.data(startInd:endInd,columnsToPlot(2)),'k','linewidth',1);
+                xlabel(strrep(dataStruct.colheaders{columnsToPlot(1)},'_',' '));
+                ylabel(strrep(dataStruct.colheaders{columnsToPlot(2)},'_',' '));
+                grid on
+                axis equal
+            elseif numSubplots == 3
+                plot3(dataStruct.data(startInd:endInd,columnsToPlot(1)),dataStruct.data(startInd:endInd,columnsToPlot(2)),dataStruct.data(startInd:endInd,columnsToPlot(3)),'k','linewidth',1);
+                xlabel(strrep(dataStruct.colheaders{columnsToPlot(1)},'_',' '));
+                ylabel(strrep(dataStruct.colheaders{columnsToPlot(2)},'_',' '));
+                zlabel(strrep(dataStruct.colheaders{columnsToPlot(3)},'_',' '));
+                grid on
+                axis equal
+            else
+                warning('To use the "Versus" plot feature, you must only plot 2 or 3 columns.');
             end
         end
 
